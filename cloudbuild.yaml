@@ -10,3 +10,9 @@ steps:
   # '--project', '${PROJECT_ID}' ensures it deploys to the correct project.
   # '${PROJECT_ID}' is an automatic variable provided by Cloud Build.
   # '--quiet' prevents interactive prompts during deployment.
+
+options:
+  # This option ensures that build logs are stored in a regional bucket
+  # owned by the user's project, satisfying the requirement when a service
+  # account is specified (even if it's the default Cloud Build service account).
+  default_logs_bucket_behavior: REGIONAL_USER_OWNED_BUCKET
