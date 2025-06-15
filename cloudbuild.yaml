@@ -1,0 +1,59 @@
+# cloudbuild.yaml
+# This file defines the steps for Google Cloud Build to deploy your Flask application.
+
+steps:
+# Step 1: Build the Docker image for your Python application using buildpacks.
+# This automatically handles Python environment setup and dependency installation.
+- name: 'gcr.io/buildpacks/gcp/buildpack:latest'
+  id: Build_Application_Image
+  args:
+    - build
+    - --builder=gcr.io/buildpacks/gcp/builder:latest
+    - --source=.
+    - --destination=gcr.io/$PROJECT_ID/curecare-app:$COMMIT_SHA
+
+# Step 2: Deploy the built Docker image to Google App Engine.
+# We explicitly pass the API keys as environment variables to the deployed App Engine instance
+# using the --set-env-vars flag. The values are pulled from Cloud Build's secretEnv,
+# which in turn are populated from Secret Manager.
+- name: 'gcr.io/cloud-builders/gcloud'
+  id: Deploy_to_App_Engine
+  entrypoint: 'bash'
+  args:
+    - '-c' # Execute the following string as a command
+    - |
+      gcloud app deploy app.yaml \
+      --project=$PROJECT_ID \
+      --version=v1-$SHORT_SHA \
+      --set-env-vars=GEMINI_API_KEY=$$GEMINI_API_KEY,GOOGLE_MAPS_API_KEY=$$GOOGLE_MAPS_API_KEY \
+      --promote # Automatically send traffic to this new version
+
+# Specify the Docker image produced by the build step as an artifact.
+images:
+  - 'gcr.io/$PROJECT_ID/curecare-app:$COMMIT_SHA'
+
+# Define the secrets that Cloud Build should make available during the build steps.
+# The 'secret_name' must match the secret created in Secret Manager.
+# The 'env' is the environment variable name that will hold the secret's value
+# within the build environment.
+availableSecrets:
+- secretManager:
+    # Full resource path to your Gemini API Key secret.
+    # REPLACE with your actual Google Cloud Project Number.
+    versionName: projects/444975544732/secrets/GEMINI_API_KEY/versions/latest
+    env: 'GEMINI_API_KEY'
+- secretManager:
+    # Full resource path to your Google Maps API Key secret.
+    # REPLACE with your actual Google Cloud Project Number.
+    versionName: projects/444975544732/secrets/GOOGLE_MAPS_API_KEY/versions/latest
+    env: 'GOOGLE_MAPS_API_KEY'
+
+# This section declares which environment variables (from 'availableSecrets')
+# contain sensitive data and should be masked in build logs.
+secretEnv: ['GEMINI_API_KEY', 'GOOGLE_MAPS_API_KEY']
+
+# Global build options.
+options:
+  # This option ensures build logs are stored in a regional bucket,
+  # satisfying logging requirements when a service account is used.
+  default_logs_bucket_behavior: REGIONAL_USER_OWNED_BUCKET
