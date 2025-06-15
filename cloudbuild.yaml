@@ -25,7 +25,7 @@ steps:
       gcloud app deploy app.yaml \
       --project=$PROJECT_ID \
       --version=v1-$SHORT_SHA \
-      --set-env-vars=GEMINI_API_KEY=$$GEMINI_API_KEY,Maps_API_KEY=$$Maps_API_KEY \
+      --set-env-vars=GEMINI_API_KEY=$$GEMINI_API_KEY,GOOGLE_MAPS_API_KEY=$$GOOGLE_MAPS_API_KEY \
       --promote # Automatically send traffic to this new version
 
 # Specify the Docker image produced by the build step as an artifact.
@@ -45,12 +45,12 @@ availableSecrets:
 - secretManager:
     # Full resource path to your Google Maps API Key secret.
     # REPLACE with your actual Google Cloud Project Number.
-    versionName: projects/444975544732/secrets/Maps_API_KEY/versions/latest
-    env: 'Maps_API_KEY'
+    versionName: projects/444975544732/secrets/GOOGLE_MAPS_API_KEY/versions/latest
+    env: 'GOOGLE_MAPS_API_KEY'
 
 # This section declares which environment variables (from 'availableSecrets')
 # contain sensitive data and should be masked in build logs.
-secretEnv: ['GEMINI_API_KEY', 'Maps_API_KEY']
+secretEnv: ['GEMINI_API_KEY', 'GOOGLE_MAPS_API_KEY']
 
 # Global build options.
 options:
