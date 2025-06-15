@@ -3,15 +3,10 @@
 
 steps:
 - name: 'gcr.io/cloud-builders/gcloud'
-# The 'gcloud app deploy' command will read your app.yaml,
-# install dependencies from requirements.txt, and deploy your app.
-# It takes care of finding the Python runtime specified in app.yaml.
-args: ['app', 'deploy', '--project', '${PROJECT_ID}', '--quiet']
-# '--project', '${PROJECT_ID}' ensures it deploys to the correct project.
-# '${PROJECT_ID}' is an automatic variable provided by Cloud Build.
-# '--quiet' prevents interactive prompts during deployment.
-
-# Optional: You can add more steps here if needed, e.g., running tests,
-# building static assets, etc. However, for a standard Flask app deployment
-# to App Engine, the 'gcloud app deploy' command is usually sufficient.
-    
+  # The 'gcloud app deploy' command will read your app.yaml,
+  # install dependencies from requirements.txt, and deploy your app.
+  # It takes care of finding the Python runtime specified in app.yaml.
+  args: ['app', 'deploy', '--project', '${PROJECT_ID}', '--quiet']
+  # '--project', '${PROJECT_ID}' ensures it deploys to the correct project.
+  # '${PROJECT_ID}' is an automatic variable provided by Cloud Build.
+  # '--quiet' prevents interactive prompts during deployment.
